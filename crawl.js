@@ -8,7 +8,7 @@ var log     = require('./lib/logger')
   , fetcher = require('./lib/fetcher')(NUMBER_OF_FETCHERS, feeder)
   , start   = Date.now();
 
-function next() {
+function crawl() {
 
   fetcher.get(feeder.dequeue(), function (err, url) {
     if (err) {
@@ -16,15 +16,13 @@ function next() {
     } else if(!url) {
       log.info('crawled %s in %s seconds', HOST_TO_CRAWL, (Date.now() - start)/1000);
     } else {
-      next();
+      crawl();
     }
   });
 
 }
 
-var start = Date.now();
-
 //start fetching
 for (var i = 0; i < NUMBER_OF_FETCHERS; i++) {
-  next();
+  crawl();
 }
