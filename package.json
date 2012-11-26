@@ -1,0 +1,15 @@
+{
+  "name": "crawli",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node crawli"
+  },
+  "engines": {
+    "node": "v0.8.x",
+    "npm": "v1.1.x"
+  },
+  "dependencies": {
+    "request": "*"
+  }
+}
