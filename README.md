@@ -5,4 +5,4 @@ Have a look at crawl.js
 
 ##Usage
 npm install
-node crawl.js
+node crawl.js [hostname]
