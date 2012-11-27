@@ -24,6 +24,7 @@ function crawl() {
 }
 
 //TODO get seed from somewhere, improve feeder
+//TODO introduce event emitter api to feeder. (feeder.on('url', crawl...))
 feeder.hostname = hostname;
 feeder.enqueue('http://' + hostname + '/');
 
