@@ -1,9 +1,9 @@
 {
-  "name": "crawli",
+  "name": "crawl.js",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node crawli"
+    "start": "node crawl.js"
   },
   "engines": {
     "node": "v0.8.x",
