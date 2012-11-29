@@ -1,5 +1,7 @@
 
-var MAX_CONN = 1;
+var MAX_CONN = 10
+  , GRACE_TIME = 500; //grace time between crawls
+
 
 var log     = require('./lib/logger')
   , Feeder  = require('./lib/feeder')
@@ -15,13 +17,12 @@ function crawl() {
     //max number of concurrent connections reached. `MAX_CONN`
     return;
   }
+  
+  var url = feeder.dequeue();
+  if (!url) { return; }
 
-  fetcher.get(feeder.dequeue(), function (err, url) {
-    if (err) {
-      crawl();
-    } else if (url) {
-      crawl();
-    }
+  fetcher.get(url, function () {
+    setTimeout(crawl, GRACE_TIME);
   });
 
 }
