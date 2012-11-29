@@ -3,10 +3,11 @@ var NUMBER_OF_FETCHERS = 1;
 
 var log     = require('./lib/logger')
   , Feeder  = require('./lib/feeder')
-  , feeder  = new Feeder()
+  , url     = require('./lib/url')
+  , domain  = process.argv[2] || 'unine.ch'
+  , feeder  = new Feeder(domain)
   , fetcher = require('./lib/fetcher')(NUMBER_OF_FETCHERS, feeder)
-  , start   = Date.now()
-  , hostname = process.argv[2] || 'www.unine.ch';
+  , start   = Date.now();
 
 function crawl() {
 
@@ -15,7 +16,7 @@ function crawl() {
       log.error('could not crawl %s. error: %s', url, err);
       crawl();
     } else if(!url) {
-      log.info('crawled %s in %s seconds', hostname, (Date.now() - start)/1000);
+      log.info('crawled %s in %s seconds', domain, (Date.now() - start)/1000);
     } else {
       crawl();
     }
@@ -23,10 +24,9 @@ function crawl() {
 
 }
 
-//TODO get seed from somewhere, improve feeder
+//TODO get seed from somewhere
 //TODO introduce event emitter api to feeder. (feeder.on('url', crawl...))
-feeder.hostname = hostname;
-feeder.enqueue('http://' + hostname + '/');
+feeder.enqueue(url.parse('http://www.' + feeder.domain + '/'));
 
 //start
 for (var i = 0; i < NUMBER_OF_FETCHERS; i++) {
