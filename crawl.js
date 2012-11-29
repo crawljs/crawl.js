@@ -10,6 +10,10 @@ var log     = require('./lib/logger')
   , fetcher = require('./lib/fetcher')(MAX_CONN, feeder)
   , start   = Date.now();
 
+function printQueue() {
+  process.stdout.write('Queue length: ' + feeder.size() + '\r');
+}
+
 function crawl() {
 
   if (fetcher.busy()) {
@@ -22,6 +26,7 @@ function crawl() {
 
   fetcher.get(url, function () {
     setTimeout(crawl, GRACE_TIME);
+    printQueue();
   });
 
 }
@@ -31,6 +36,8 @@ feeder.on('url', crawl);
 //TODO get seed from somewhere
 //triggers `url` event which starts the crawl
 feeder.enqueue(url.parse('http://www.' + feeder.domainName + '/'));
+
+log.info('crawling %s', domainName);
 
 process.on('exit', function () {
   log.info('crawled %s in %s seconds', domainName, (Date.now() - start)/1000);
