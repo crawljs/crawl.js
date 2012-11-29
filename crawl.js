@@ -21,7 +21,7 @@ function crawl() {
   var url = feeder.dequeue();
   if (!url) { return; }
 
-  fetcher.get(url, function () {
+  fetcher.get(url, function (err) {
     setTimeout(crawl, GRACE_TIME);
   });
 
