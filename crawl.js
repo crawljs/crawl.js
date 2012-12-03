@@ -42,3 +42,15 @@ log.info('crawling %s', domainName);
 process.on('exit', function () {
   log.info('crawled %s in %s seconds', domainName, (Date.now() - start)/1000);
 });
+
+process.on('SIGINT', function () {
+  log.info('dump queue');
+  for (;;) {
+    var url = feeder.dequeue();
+    if (url) {
+      log.info(url);
+    } else {
+      process.exit();
+    }
+  }
+});
