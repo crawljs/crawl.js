@@ -1,0 +1,17 @@
+#!/bin/sh
+
+NODE=`which node`
+CRAWLJS="`dirname $0`/crawl.js"
+URL=$1
+
+if [ -z $NODE ]; then
+  echo "node is missing. (http://nodejs.org)";
+  exit 2;
+fi
+
+if [ -z $URL ]; then
+  echo "usage: $0 url";
+  exit 1;
+fi
+
+$NODE $CRAWLJS $URL

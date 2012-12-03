@@ -5,9 +5,9 @@ var MAX_CONN = 10
 var log     = require('./lib/logger')
   , Feeder  = require('./lib/feeder')
   , url     = require('./lib/url')
-  , domainName  = process.argv[2] || 'unine.ch'
-  , feeder  = new Feeder(domainName)
-  , fetcher = require('./lib/fetcher')(MAX_CONN, feeder)
+  , Fetcher = require('./lib/fetcher')
+  , feeder
+  , fetcher
   , start   = Date.now();
 
 function printQueue() {
@@ -31,14 +31,21 @@ function crawl() {
 
 }
 
-feeder.on('url', crawl);
+//TODO get seed from somewhere else than command line argument
+var urlArg = process.argv[2]
+  , urlObj = url.parse(urlArg)
+  , domainName = url.domainName(urlObj);
 
-//TODO get seed from somewhere
+feeder = new Feeder(domainName);
+fetcher = new Fetcher(MAX_CONN, feeder);
+
+feeder.on('url', crawl);
 //triggers `url` event which starts the crawl
-feeder.enqueue(url.parse('http://www.' + feeder.domainName + '/'));
+feeder.enqueue(urlObj);
 
 log.info('crawling %s', domainName);
 
+//process hooks
 process.on('exit', function () {
   log.info('crawled %s in %s seconds', domainName, (Date.now() - start)/1000);
 });
