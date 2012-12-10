@@ -1,5 +1,5 @@
 
-var MAX_CONN = 10
+var MAX_CONN = 5
   , GRACE_TIME = 500; //grace time between crawls
 
 var log     = require('./lib/logger')
