@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "request": "*",
-    "memcache": "*"
+    "memcache": "*",
+    "helenus": "*"
   }
 }

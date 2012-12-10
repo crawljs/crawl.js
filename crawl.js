@@ -22,7 +22,14 @@ function crawl() {
   }
   
   var url = feeder.dequeue();
-  if (!url) { return; }
+
+  if (!url) {
+    if (!fetcher.active()) {
+      //we are done
+      //TODO shutdown gracefully
+      process.exit(0);
+    }
+  }
 
   fetcher.get(url, function () {
     setTimeout(crawl, GRACE_TIME);
