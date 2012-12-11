@@ -1,5 +1,5 @@
 
-var MAX_CONN = 5
+var MAX_CONN = 10
   , GRACE_TIME = 500; //grace time between crawls
 
 var log     = require('./lib/logger')
@@ -25,7 +25,7 @@ function crawl() {
 
   if (!url) {
     if (!fetcher.active()) {
-      //we are done
+      //done
       //TODO shutdown gracefully
       process.exit(0);
     }
