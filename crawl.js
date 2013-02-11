@@ -1,11 +1,9 @@
 
-var MAX_CONN = 10
-  , GRACE_TIME = 500; //grace time between crawls
-
 var log     = require('./lib/logger')
   , Feeder  = require('./lib/feeder')
   , url     = require('./lib/url')
   , Fetcher = require('./lib/fetcher')
+  , conf    = require('./lib/config')()
   , feeder
   , fetcher
   , start   = Date.now();
@@ -17,7 +15,7 @@ function printQueue() {
 function crawl() {
 
   if (fetcher.busy()) {
-    //max number of concurrent connections reached. `MAX_CONN`
+    //max number of concurrent connections reached.
     return;
   }
   
@@ -32,7 +30,7 @@ function crawl() {
   }
 
   fetcher.get(url, function () {
-    setTimeout(crawl, GRACE_TIME);
+    setTimeout(crawl, conf.interval);
     printQueue();
   });
 
@@ -44,7 +42,7 @@ var urlArg = process.argv[2]
   , domainName = url.domainName(urlObj);
 
 feeder = new Feeder(domainName);
-fetcher = new Fetcher(MAX_CONN, feeder);
+fetcher = new Fetcher(conf.fetchers, feeder);
 
 feeder.on('url', crawl);
 //triggers `url` event which starts the crawl
