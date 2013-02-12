@@ -13,6 +13,7 @@
     "request": "*",
     "memcache": "*",
     "helenus": "*",
-    "riak-js": "*"
+    "riak-js": "*",
+    "mkdirp": "*"
   }
 }
