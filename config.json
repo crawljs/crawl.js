@@ -1,16 +1,18 @@
 {
-    "interval": 500
+    "interval": 1000
   , "fetchers": 1
   , "fetcher": {
         "timeout": 30000
       , "followRedirect": true
-      , "maxRedirects": 2
+      , "maxRedirects": 20
     }
   , "storage": {
-        "type": "Riak"
+        "type": "Fs"
       , "options": {
-          "host": "localhost"
-        , "port": "8098"
+          "dir": "./data/"
       }
     }
+  , "feeder": {
+    "filter": { "type": "host" }
+  }
 }

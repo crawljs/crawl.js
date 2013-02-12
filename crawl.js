@@ -38,21 +38,20 @@ function crawl() {
 
 //TODO get seed from somewhere else than command line argument
 var urlArg = process.argv[2]
-  , urlObj = url.parse(urlArg)
-  , domainName = url.domainName(urlObj);
+  , urlObj = url.parse(urlArg);
 
-feeder = new Feeder(domainName);
+feeder = new Feeder(urlObj);
 fetcher = new Fetcher(conf.fetchers, feeder);
 
 feeder.on('url', crawl);
 //triggers `url` event which starts the crawl
 feeder.enqueue(urlObj);
 
-log.info('crawling %s', domainName);
+log.info('crawling %s', urlArg);
 
 //process hooks
 process.on('exit', function () {
-  log.info('crawled %s in %s seconds', domainName, (Date.now() - start)/1000);
+  log.info('crawled %s in %s seconds', urlArg, (Date.now() - start)/1000);
 });
 
 process.on('SIGINT', function () {
