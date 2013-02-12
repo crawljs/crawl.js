@@ -12,6 +12,7 @@
   "dependencies": {
     "request": "*",
     "memcache": "*",
-    "helenus": "*"
+    "helenus": "*",
+    "riak-js": "*"
   }
 }
