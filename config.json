@@ -6,8 +6,9 @@
       , "followRedirect": true
       , "maxRedirects": 20
     }
+  , "extractor": "Parser"
   , "storage": {
-        "type": "Fs"
+        "type": "dummy"
       , "options": {
           "dir": "./data/"
       }
