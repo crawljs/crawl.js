@@ -54,14 +54,12 @@ process.on('exit', function () {
   log.info('crawled %s in %s seconds', urlArg, (Date.now() - start)/1000);
 });
 
-process.on('SIGINT', function () {
+process.on('SIGUSR1', function () {
   log.info('dump queue');
   for (;;) {
     var url = feeder.dequeue();
     if (url) {
       log.info(url);
-    } else {
-      process.exit();
     }
   }
 });
