@@ -1,10 +1,13 @@
 {
-    "interval": 1000
-  , "fetchers": 1
+    "interval": 100
+  , "fetchers": 3
   , "fetcher": {
         "timeout": 30000
       , "followRedirect": true
       , "maxRedirects": 20
+      , "headers":{
+          "User-Agent": "crawl.js v0.1"
+        }
     }
   , "extractor": "Parser"
   , "storage": {
