@@ -1,15 +1,15 @@
 
 var log     = require('./lib/logger')
-  , Feeder  = require('./lib/feeder')
+  , Queue   = require('./lib/queue')
   , url     = require('./lib/url')
   , Fetcher = require('./lib/fetcher')
   , conf    = require('./lib/config')()
-  , feeder
+  , queue
   , fetcher
   , start   = Date.now();
 
 function printQueue() {
-  process.stdout.write('Queue length: ' + feeder.size() + '\r');
+  process.stdout.write('Queue length: ' + queue.size() + '\r');
 }
 
 function crawl() {
@@ -19,7 +19,7 @@ function crawl() {
     return;
   }
   
-  var url = feeder.dequeue();
+  var url = queue.dequeue();
 
   if (!url) {
     if (!fetcher.active()) {
@@ -40,12 +40,12 @@ function crawl() {
 var urlArg = process.argv[2]
   , urlObj = url.parse(urlArg);
 
-feeder = new Feeder(urlObj);
-fetcher = new Fetcher(conf.fetchers, feeder);
+queue = new Queue(urlObj);
+fetcher = new Fetcher(conf.fetchers, queue);
 
-feeder.on('url', crawl);
+queue.on('url', crawl);
 //triggers `url` event which starts the crawl
-feeder.enqueue(urlObj);
+queue.enqueue(urlObj);
 
 log.info('crawling %s', urlArg);
 
@@ -57,7 +57,7 @@ process.on('exit', function () {
 process.on('SIGUSR1', function () {
   log.info('dump queue');
   for (;;) {
-    var url = feeder.dequeue();
+    var url = queue.dequeue();
     if (url) {
       log.info(url);
     }

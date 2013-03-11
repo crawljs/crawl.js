@@ -1,6 +1,6 @@
 {
-    "interval": 100
-  , "fetchers": 3
+    "interval": 1000
+  , "fetchers": 1
   , "fetcher": {
         "timeout": 30000
       , "followRedirect": true
@@ -16,7 +16,7 @@
           "dir": "./data/"
       }
     }
-  , "feeder": {
+  , "queue": {
     "filter": { "type": "host" }
   }
 }
