@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-/* 
+/*
  * Import an initial list of urls into riak.
  * Every url is mapped to his bucket using our internal algorithm.
  */
 
-var mapper = require('../lib/mapper')
-  , url = require('../lib/url')
+var url = require('../lib/url')
   , log = require('../lib/logger')
   , db = require('riak-js').getClient({encodeUri: true})
   , fs = require('fs')
@@ -23,11 +22,11 @@ content.split('\n').forEach(function (line) {
   //make sure it is one.
   try {
     var validUrl   = url.parse(line).href;
-    var keySpace = 'urls.' + mapper.map(validUrl);
+    var keySpace = 'urls.' + url.map(validUrl);
 
     db.save(keySpace, validUrl, '', {contentType: 'text/plain'});
 
-    console.log(mapper.map(validUrl) + ' <-> ' + validUrl);
+    console.log(url.map(validUrl) + ' <-> ' + validUrl);
   } catch (e) {
     log.warn(line + ' is not an url. error: ' + e);
   }
