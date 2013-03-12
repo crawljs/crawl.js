@@ -6,8 +6,8 @@
     "start": "node crawl.js"
   },
   "engines": {
-    "node": "v0.8.x",
-    "npm": "v1.1.x"
+    "node": "v0.10.x",
+    "npm": "v1.2.x"
   },
   "dependencies": {
     "request": "*",
