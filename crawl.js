@@ -13,7 +13,7 @@ if (typeof conf.block === 'undefined') {
   throw new Error ('crawl.js needs to know which block it is responsible for! please specify `block` in configuration.');
 }
 
-store = Store.create('main');
+store = Store.get('main');
 start();
 
 function printQueue() {
@@ -36,10 +36,15 @@ function crawl() {
     }
   }
 
-  fetcher.get(url, function () {
-    printQueue();
+  try {
+    fetcher.get(url, function () {
+      printQueue();
+      crawl();
+    });
+  } catch (e) {
+    log.error('fetch went wrong: %s', e);
     crawl();
-  });
+  }
 
 }
 

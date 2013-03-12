@@ -3,7 +3,7 @@
   , "blocks": 4
   , "queueLimit": 1000
   , "fetcher": {
-      "poolSize": 2
+      "poolSize": 3
     , "wait": 1000
     , "request": {
           "timeout": 30000
