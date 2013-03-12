@@ -6,15 +6,11 @@ var log     = require('./lib/logger')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
   , queue
-  , store
   , fetcher;
 
 if (typeof conf.block === 'undefined') {
   throw new Error ('crawl.js needs to know which block it is responsible for! please specify `block` in configuration.');
 }
-
-store = Store.get('main');
-start();
 
 function printQueue() {
   process.stdout.write('Queue length: ' + queue.size() + '\r');
@@ -49,6 +45,7 @@ function crawl() {
 }
 
 function start () {
+  var store = Store.get('main');
   store.keys('urls.' + conf.block, function (err, urls) {
     if (err) {
       log.error('could not get urls. error: ' + err);
@@ -73,6 +70,8 @@ function start () {
 
   });
 }
+
+start();
 
 
 process.on('SIGUSR1', function () {
