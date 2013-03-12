@@ -8,7 +8,7 @@
 var mapper = require('../lib/mapper')
   , url = require('../lib/url')
   , log = require('../lib/logger')
-  , db = require('riak-js').getClient()
+  , db = require('riak-js').getClient({encodeUri: true})
   , fs = require('fs')
   , listPath = process.argv[2]
 
@@ -17,17 +17,17 @@ if (!listPath) {
   process.exit(1);
 }
 
-content = fs.readFileSync(listPath, 'utf-8');
+var content = fs.readFileSync(listPath, 'utf-8');
 
 content.split('\n').forEach(function (line) {
   //make sure it is one.
   try {
-    var urlObj   = url.parse(line);
-    var keySpace = 'urls.' + mapper.map(urlObj);
+    var validUrl   = url.parse(line).href;
+    var keySpace = 'urls.' + mapper.map(validUrl);
 
-    db.save(keySpace, urlObj.href, '', {contentType: 'text/plain', encodeUri: true});
+    db.save(keySpace, validUrl, '', {contentType: 'text/plain'});
 
-    console.log(mapper.map(urlObj) + ' <-> ' + urlObj.href);
+    console.log(mapper.map(validUrl) + ' <-> ' + validUrl);
   } catch (e) {
     log.warn(line + ' is not an url. error: ' + e);
   }

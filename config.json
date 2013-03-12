@@ -1,5 +1,6 @@
 {
     "interval": 1000
+  , "block": 0
   , "fetchers": 1
   , "fetcher": {
         "timeout": 30000
@@ -11,12 +12,13 @@
     }
   , "extractor": "Parser"
   , "storage": {
-        "type": "dummy"
+        "type": "riak"
       , "options": {
-          "dir": "./data/"
+            "host": "127.0.0.1"
+          , "port": "8098"
       }
     }
   , "queue": {
-    "filter": { "type": "host" }
+    "filter": { "type": "mine" }
   }
 }

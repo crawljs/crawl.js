@@ -1,12 +1,13 @@
 
 var log     = require('./lib/logger')
   , Queue   = require('./lib/queue')
+  , store   = require('./lib/store')
   , url     = require('./lib/url')
   , Fetcher = require('./lib/fetcher')
   , conf    = require('./lib/config')()
   , queue
   , fetcher
-  , start   = Date.now();
+  , store;
 
 function printQueue() {
   process.stdout.write('Queue length: ' + queue.size() + '\r');
@@ -23,9 +24,8 @@ function crawl() {
 
   if (!url) {
     if (!fetcher.active()) {
-      //done
-      //TODO shutdown gracefully
-      process.exit(0);
+      //TODO ask for more
+      return log.info('DONE!');
     }
   }
 
@@ -36,22 +36,27 @@ function crawl() {
 
 }
 
-//TODO get seed from somewhere else than command line argument
-var urlArg = process.argv[2]
-  , urlObj = url.parse(urlArg);
+if (typeof conf.block === 'undefined') {
+  throw new Error ('crawl.js needs to know which block it is responsible for! please specify `block` in configuration.');
+}
 
-queue = new Queue(urlObj);
-fetcher = new Fetcher(conf.fetchers, queue);
+//init storage Engine and ask for our
+store = store.create('main');
+store.keys('urls.' + conf.block, function (err, urls) {
+  if (err) {
+    log.error('could not get urls. error: ' + err);
+  }
+  log.info('got ' + urls.length + ' new seed urls.');
+  //assemble crawler parts
+  queue = new Queue();
+  queue.on('url', crawl);
+  fetcher = new Fetcher(conf.fetchers, queue)
 
-queue.on('url', crawl);
-//triggers `url` event which starts the crawl
-queue.enqueue(urlObj);
+  urls.forEach(function (urlString) {
+    //triggers `url` event which starts the crawl
+    queue.enqueue(url.parse(urlString));
+  });
 
-log.info('crawling %s', urlArg);
-
-//process hooks
-process.on('exit', function () {
-  log.info('crawled %s in %s seconds', urlArg, (Date.now() - start)/1000);
 });
 
 process.on('SIGUSR1', function () {
