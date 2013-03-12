@@ -1,15 +1,19 @@
 {
-    "interval": 1000
-  , "block": 0
-  , "fetchers": 1
+    "block": 0
+  , "blocks": 4
+  , "queueLimit": 1000
   , "fetcher": {
-        "timeout": 30000
-      , "followRedirect": true
-      , "maxRedirects": 20
-      , "headers":{
-          "User-Agent": "crawl.js v0.1"
-        }
+      "poolSize": 2
+    , "wait": 1000
+    , "request": {
+          "timeout": 30000
+        , "followRedirect": true
+        , "maxRedirects": 20
+        , "headers":{
+            "User-Agent": "crawl.js v0.1"
+          }
     }
+  }
   , "extractor": "Parser"
   , "storage": {
         "type": "riak"
@@ -18,7 +22,4 @@
           , "port": "8098"
       }
     }
-  , "queue": {
-    "filter": { "type": "mine" }
-  }
 }
