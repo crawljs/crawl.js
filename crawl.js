@@ -5,8 +5,7 @@ var log     = require('./lib/logger')
   , Fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
-  , queue
-  , fetcher;
+  , queue;
 
 if (typeof conf.block === 'undefined') {
   throw new Error ('crawl.js needs to know which block it is responsible for! please specify `block` in configuration.');
@@ -18,7 +17,7 @@ function printQueue() {
 
 function crawl() {
 
-  if (fetcher.busy()) {
+  if (Fetcher.isBusy()) {
     //max number of concurrent connections reached.
     return;
   }
@@ -26,15 +25,18 @@ function crawl() {
   var url = queue.dequeue();
 
   if (!url) {
-    if (!fetcher.active()) {
+    if (!Fetcher.isActive()) {
       //TODO, restart
       return log.info('DONE!');
+    } else {
+      //other crawlers still running. they will trigger more events
+      return;
     }
   }
 
   try {
-    fetcher.get(url, function () {
-      printQueue();
+    Fetcher.get(url, function () {
+      //jprintQueue();
       crawl();
     });
   } catch (e) {
@@ -46,15 +48,16 @@ function crawl() {
 
 function start () {
   var store = Store.get('main');
-  store.keys('urls.' + conf.block, function (err, urls) {
+  //query the urls we need to crawl
+  store.query('urls.' + conf.block, {crawl:1}, function (err, urls) {
     if (err) {
-      log.error('could not get urls. error: ' + err);
+      return log.error('could not get urls. error: ' + err);
     }
     log.info('got ' + urls.length + ' new seed urls.');
 
     //assemble crawler parts
     var dispatcher = new Dispatcher();
-    fetcher = new Fetcher(dispatcher);
+    Fetcher.init(dispatcher);
 
     queue = dispatcher.getQueue();
     queue.on('url', crawl);
@@ -63,9 +66,14 @@ function start () {
       dispatcher.busy();
     });
 
-    urls.forEach(function (urlString) {
+    urls.every(function (urlString) {
       //triggers `url` event which starts the crawl
-      dispatcher.dispatch(url.parse(urlString));
+      if (!queue.isFull()) {
+        dispatcher.dispatch(url.parse(urlString));
+        return true;
+      } else {
+        return false; //break out of loop
+      }
     });
 
   });

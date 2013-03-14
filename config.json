@@ -1,5 +1,5 @@
 {
-    "block": 0
+    "block": 1
   , "blocks": 4
   , "queueLimit": 1000
   , "fetcher": {
@@ -14,7 +14,7 @@
           }
     }
   }
-  , "extractor": "Parser"
+  , "extractor": "parser"
   , "storage": {
         "type": "riak"
       , "options": {

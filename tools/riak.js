@@ -74,18 +74,38 @@ actions.keys = function (bucket) {
   console.log('keys of bucket: ' + bucket);
   db.keys(bucket).on('keys', console.dir).start();
 
-}
+};
 
 /*
  * Remove `key` from `bucket`
  */
 actions.remove = function (bucket, key) {
-  if (!(bucket && key)) { 
+  if (!(bucket && key)) {
     console.log('action usage: <bucket> <key>');
     return;
   }
   db.remove(bucket, key, {encodeUri: true}, handle(function () { console.log('OK!')}));
-}
+};
+
+actions.query = function (bucket, query) {
+  if (!(bucket && query)) {
+    console.log('action usage: <bucket> <query>');
+    console.log('the query has to be valid json, so the syntax is a bit awkward..');
+    console.log('ex: urls.0 \'{"crawl":1}\'');
+    return;
+  }
+
+  db.query(bucket, JSON.parse(query), function (err, answer) {
+    if (err) {
+      return console.log('could not execute query. error %s', err);
+    } else if (!answer) {
+      return console.log('empty response');
+    } else {
+      console.log(answer);
+    }
+  });
+
+};
 
 if(action) {
   if (!actions[action]) {

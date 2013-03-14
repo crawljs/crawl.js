@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "request": "*",
-    "memcache": "*",
-    "helenus": "*",
     "riak-js": "*",
     "mkdirp": "*",
     "htmlparser2": "*"
