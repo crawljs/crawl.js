@@ -1,8 +1,6 @@
 {
-    "block": 1
-  , "blocks": 4
-  , "queueLimit": 1000
-  , "fetcher": {
+     "queueLimit": 20
+   , "fetcher": {
       "poolSize": 3
     , "wait": 1000
     , "request": {
@@ -22,4 +20,7 @@
           , "port": "8098"
       }
     }
+  , "url": {
+    "blocks": 16 
+  }
 }

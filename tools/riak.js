@@ -35,7 +35,7 @@ actions.buckets = function (subAction) {
 };
 
 actions.buckets.help = function () {
-  console.log('[list,purge]');
+  console.log('[' + Object.keys(actions.buckets).join(',') + ']');
 };
 
 actions.buckets.list = function () {
@@ -103,6 +103,36 @@ actions.query = function (bucket, query) {
     } else {
       console.log(answer);
     }
+  });
+
+};
+
+actions.save = function (bucket, key, value, meta) {
+  if(!(bucket && key && value)) {
+    console.log('action usage: <bucket> <key> <value> [meta]');
+    console.log('[meta] has to be valid json, so the syntax is a bit awkward..');
+    console.log('ex: \'{"index":{"crawl":1}}\'');
+    return;
+  }
+  meta = meta || {};
+  db.save(bucket, key, value, JSON.parse(meta), function (err, obj, meta) {
+    if (err) { throw err; }
+    console.log('saved');
+    console.log('meta %s', util.inspect(meta));
+  });
+};
+
+actions.get = function (bucket, key) {
+  if(!(bucket && key)) {
+    console.log('action usage: <bucket> <key>');
+    return;
+  }
+  db.get(bucket, key, function (err, val, meta) {
+    if (err) {
+      console.error('error: %s', util.inspect(err));
+    }
+    console.log(val);
+    console.log('meta: %s', util.inspect(meta));
   });
 
 };

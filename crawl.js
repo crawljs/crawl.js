@@ -5,11 +5,20 @@ var log     = require('./lib/logger')
   , Fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
+  , block = process.argv[2]
   , queue;
 
-if (typeof conf.block === 'undefined') {
-  throw new Error ('crawl.js needs to know which block it is responsible for! please specify `block` in configuration.');
+if (!block) {
+  console.log('usage: %s <url-block>', process.argv[1]);
+  console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
+  process.exit(1);
 }
+
+/*
+ * The url block we are responsible for.
+ */
+conf.block = parseInt(block, 10);
+
 
 function printQueue() {
   process.stdout.write('Queue length: ' + queue.size() + '\r');
@@ -26,34 +35,34 @@ function crawl() {
 
   if (!url) {
     if (!Fetcher.isActive()) {
-      //TODO, restart
-      return log.info('DONE!');
+      setTimeout(start, 5000);
+      return log.info('job done! waiting to restart.');
     } else {
       //other crawlers still running. they will trigger more events
       return;
     }
   }
 
-  try {
-    Fetcher.get(url, function () {
-      //jprintQueue();
-      crawl();
-    });
-  } catch (e) {
-    log.error('fetch went wrong: %s', e);
-    crawl();
-  }
+  Fetcher.get(url, function (err) {
+    if (err) {
+      log.error('fetch went wrong: %s', err);
+    }
+    printQueue();
+    setImmediate(crawl);
+  });
 
 }
 
 function start () {
-  var store = Store.get('main');
+  var store = Store.get('main')
+    , bucket = 'urls.' + conf.block;
+
   //query the urls we need to crawl
-  store.query('urls.' + conf.block, {crawl:1}, function (err, urls) {
+  store.query(bucket, {crawl:1}, function (err, urls) {
     if (err) {
       return log.error('could not get urls. error: ' + err);
     }
-    log.info('got ' + urls.length + ' new seed urls.');
+    log.info('got ' + urls.length + ' new urls.');
 
     //assemble crawler parts
     var dispatcher = new Dispatcher();
@@ -61,18 +70,25 @@ function start () {
 
     queue = dispatcher.getQueue();
     queue.on('url', crawl);
-    queue.on('full', function () {
-      //Tell the dispatcher that we are busy
-      dispatcher.busy();
-    });
+
+    if (!urls.length) {
+      //keep running
+      setTimeout(start, 10000);
+      return;
+    }
 
     urls.every(function (urlString) {
       //triggers `url` event which starts the crawl
-      if (!queue.isFull()) {
-        dispatcher.dispatch(url.parse(urlString));
+      if (dispatcher.dispatch(url.parse(urlString))) {
+        store.put(bucket, urlString, {queuedAt: Date.now(), by: conf.block}, {index:{crawl: 0}}, function (err) {
+          if (err) {
+            log.error('could not flag url as beeing crawled. error: %s', err);
+          }
+        });
         return true;
       } else {
-        return false; //break out of loop
+        //break out of loop as soon as our queue is full.
+        return false;
       }
     });
 
@@ -80,7 +96,6 @@ function start () {
 }
 
 start();
-
 
 process.on('SIGUSR1', function () {
   log.info('dump queue');
