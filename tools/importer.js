@@ -6,8 +6,9 @@
  */
 
 var url = require('../lib/url')
+  , options = require('../lib/config')().storage.options
   , log = require('../lib/logger')
-  , db = require('riak-js').getClient({encodeUri: true})
+  , db = require('riak-js').getClient({encodeUri: true, host: options.host, port: options.port})
   , fs = require('fs')
   , listPath = process.argv[2];
 

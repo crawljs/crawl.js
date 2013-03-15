@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
-var db = require('riak-js').getClient({encodeUri: true})
+var options = require('../lib/config')().storage.options
+  , db = require('riak-js').getClient({encodeUri: true, host: options.host, port: options.port})
   , util = require('util')
   , actions = {}
   , action = process.argv[2]
-  , args = process.argv.slice(3)
+  , args = process.argv.slice(3);
 
 var instrument = {
   'riak.request.start': function(event) {
