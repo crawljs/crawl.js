@@ -107,6 +107,7 @@ actions.query = function (bucket, query) {
       return console.log('empty response');
     } else {
       console.log(answer);
+      console.log('size: %s', answer.length);
     }
   });
 
