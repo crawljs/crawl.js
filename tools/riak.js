@@ -88,6 +88,10 @@ actions.remove = function (bucket, key) {
   db.remove(bucket, key, {encodeUri: true}, handle(function () { console.log('OK!')}));
 };
 
+/*
+ * `query` a `bucket`
+ */
+
 actions.query = function (bucket, query) {
   if (!(bucket && query)) {
     console.log('action usage: <bucket> <query>');
@@ -134,6 +138,19 @@ actions.get = function (bucket, key) {
     }
     console.log(val);
     console.log('meta: %s', util.inspect(meta));
+  });
+
+};
+
+actions.count = function (bucket) {
+  if (!bucket) {
+    console.log('action usage: <bucket>');
+    return;
+  }
+
+  db.count(bucket, function (err, count) {
+    if (err) { throw err; }
+    console.log('bucket %s has %s keys', bucket, count);
   });
 
 };
