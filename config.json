@@ -1,8 +1,8 @@
 {
-     "queueLimit": 20
-   , "roboLimit": 20
+     "queueLimit": 50
+   , "roboLimit": 100
    , "fetcher": {
-      "poolSize": 1
+      "poolSize": 3
     , "wait": 1000
     , "request": {
           "timeout": 30000
