@@ -14,7 +14,7 @@
     "mkdirp": "*",
     "redis": "*",
     "hiredis": "*",
-    "robots": "*",
+    "robots": "git://github.com/cederigo/robots.js.git#handle_request_errors",
     "htmlparser2": "*"
   }
 }
