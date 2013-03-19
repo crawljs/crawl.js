@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "request": "*",
-    "riak-js": "*",
     "mkdirp": "*",
+    "redis": "*",
+    "hiredis": "*",
+    "robots": "*",
     "htmlparser2": "*"
   }
 }

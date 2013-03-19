@@ -47,11 +47,9 @@ function start () {
       setTimeout(start, 10000);
       return;
     } else {
-
       log.info('got ' + urls.length + ' new urls to fetch.');
-
       urls.forEach(function (urlString) {
-        dispatcher.dispatch(url.parse(urlString));
+        dispatcher.dispatch(url.parse(urlString), true);
       });
     }
 
