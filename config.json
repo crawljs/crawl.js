@@ -1,7 +1,7 @@
 {
      "queueLimit": 20
    , "fetcher": {
-      "poolSize": 3
+      "poolSize": 1
     , "wait": 1000
     , "request": {
           "timeout": 30000
@@ -14,13 +14,13 @@
   }
   , "extractor": "parser"
   , "storage": {
-        "type": "riak"
+        "type": "redis"
       , "options": {
             "host": "127.0.0.1"
-          , "port": "8098"
+          , "port": "6379"
       }
     }
   , "url": {
-    "blocks": 16 
+    "blocks": 4
   }
 }

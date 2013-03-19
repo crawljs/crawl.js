@@ -8,7 +8,7 @@
 var url = require('../lib/url')
   , options = require('../lib/config')().storage.options
   , log = require('../lib/logger')
-  , db = require('riak-js').getClient({encodeUri: true, host: options.host, port: options.port})
+  , store = require('../lib/store').get('importer')
   , fs = require('fs')
   , listPath = process.argv[2];
 
@@ -23,9 +23,9 @@ content.split('\n').forEach(function (line) {
   //make sure it is one.
   try {
     var validUrl   = url.parse(line).href;
-    var keySpace = 'urls.' + url.map(validUrl);
+    var key = url.map(validUrl) + ':urls';
 
-    db.save(keySpace, validUrl, 'ola', {index: {crawl:1}}, function (err) {
+    store.zadd(key, 0, validUrl, function (err) {
       if (err) { throw err; }
     });
 
