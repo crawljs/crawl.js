@@ -1,38 +1,43 @@
-#Crawl.js - A simple web crawler written for node.js
+#Crawl.js - A decentralized crawler for node.js
+A crawl.js instance is autonomic and responsible for one URL-block. URL-blocks are 'sorted sets' (redis.io) used as queues.
+
+##Prerequisites
+Node.js (v0.10.x) - http://nodejs.org/
+Redis.io - http://redis.io/
+
+Note: I suggest the use of `nvm` (Node Version Manager - https://github.com/creationix/nvm) for the Node.js installation. Because crawl.js requires version v0.10.x and most distributions do not have packages for this yet.
 
 ##Configuration
-Have a look at config.json. Most keys are selfexplaining. The dot-notationis used to describe nested configuration objects.
+Have a look at `/config.json`. Two parts are important and need to be adjusted. 
 
-###Storage
-You can choose which storage implementation the crawler should use.
+* `storage`: Configure it, so that the instances can connect to redis.
+* `url.blocks`: The total number of url-blocks you want to distribute the urls to. One crawl.js instance per URL-block. This number **must be a power of 2**.
 
- * storage.type: starage-type (available types:<Fs, Mc, Cassandra, Hbase, Riak>)
- * storage.options: specific to the chosen type.
+##Preperations
+Before we start to crawl we need to import some URL's into the URL-blocks.
 
-Some examples:
+```Shell
+$ ./tools/importer <path to seed-urls.txt>
+```
 
-Fs. (Filesystem. (using the url as the filename))
+The format of `seed-urls.txt` is pretty simple:
 
-`...  "storage": { "type": "Fs" , "options": { "dir": "./data/"}}`
+```Shell
+http://www.someurl.ch
+http://www.anotherurl.ch
+```
 
-Riak store.
+##Dependencies
+Before we can start an instance we need to install the dependencies. They are configured in `/package.json`.
+To install them just do:
+```Shell
+$ cd project-root
+$ npm install
+```
 
-`...  "storage": { "type": "Riak" , "options": { "host": "localhost" , "port": "8098" }}`
+##Starting an instance
+```Shell
+$ node crawl.js <url-block>
+```
 
-Mc. (Memcached protocol)
-
-`...  "storage": { "type": "Mc" , "options": { "host": "localhost" , "port": "11211" }}`
-
-Cassandra
-
-`...  "storage": { "type": "Cassandra" , "options": { "keyspace":"crawljs", "hosts":['localhost:9160'] }}`
-
-Hbase
-
-`...  "storage": { "type": "Hbase" , "options": { "host": "localhost" , "port": "8080" }}`
-
-
-##Usage
-npm install
-
-node crawl.js [url]
+url-block: A url-block identifier between 0 and `url.blocks` (configured in `config.json`). It specifies for which URL-block this instance is responsible for.
