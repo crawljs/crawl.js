@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /*
- * Import an initial list of urls into riak.
- * Every url is mapped to his bucket using our internal algorithm.
+ * Import an initial list of URLs.
+ * Every url is mapped to the responsible URL-block automatically.
  */
 
 var url = require('../lib/url')

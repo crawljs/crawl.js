@@ -1,3 +1,6 @@
+/*
+ * Crawl.js - Entry point
+ */
 
 var log     = require('./lib/logger')
   , Store   = require('./lib/store')
