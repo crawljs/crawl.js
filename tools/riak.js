@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+/*
+ * Helper script to perform various operations on `riak`.
+ * Run this script without arguments to get some usage information.
+ */
 
 var options = require('../lib/config')().storage.options
   , db = require('riak-js').getClient({encodeUri: true, host: options.host, port: options.port})

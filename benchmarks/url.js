@@ -1,4 +1,12 @@
-
+/*
+ * Benchmark native `url` module of Node.js.
+ * In Node.js <= 0.8.x there was no possiblity to keep the base URL as a parsed `urlObj`.
+ * Therefore resolving relative links always involved parsing the base URL + the relative path.
+ *
+ * In Node.js >= 0.8.x we can keep the parsed base URL (url object). Hence the speedup is of factor 2x for our usecase parsing relative links in a html document!!
+ *
+ * Illustrate it here.
+ */
 var url = require('url')
   , fs = require('fs');
 
@@ -42,20 +50,20 @@ function benchUrlResolveSimple() {
 
 /*
  * Use-Case for reloving links on a big page (1000 links)
- * Requires node v.9.x
+ * Requires node v0.10.x
  */
 function benchUrlResolveSimple2() {
   var count = 1000
     , start = Date.now()
     , base  = url.parse('http://www.example.com/one/two');
 
-  if(!base.resolve) { console.log('Node v0.9.x required'); return;}
+  if(!base.resolve) { console.log('Node v0.10.x required'); return;}
 
   for(var i = 0; i < count; i++) {
     base.resolveObject('three/four/');
   }
 
-  console.log('resolving %s links from 1 page took %s seconds. (node 0.9.x)', count, (Date.now() - start)/1000);
+  console.log('resolving %s links from 1 page took %s seconds. (node 0.10.x)', count, (Date.now() - start)/1000);
 
 }
 
@@ -74,7 +82,7 @@ function benchUrlResolveReal() {
     });
   }
 
-  console.log('resolving %s links from %s pages took %s seconds (node v0.8.x)', count, Object.keys(data).length, (Date.now() - start)/1000);
+  console.log('resolving %s links from %s pages took %s seconds', count, Object.keys(data).length, (Date.now() - start)/1000);
 }
 
 function benchUrlResolveReal2() {
@@ -88,13 +96,13 @@ function benchUrlResolveReal2() {
   for (var base in data) {
     var hrefs = data[base];
     var baseUrl = url.parse(base);
-    if(!baseUrl.resolve) { console.log('Node v0.9.x required'); return;}
+    if(!baseUrl.resolve) { console.log('Node v0.10.x required'); return;}
     hrefs.forEach(function (href) {
       baseUrl.resolveObject(href);
     });
   }
 
-  console.log('resolving %s links from %s pages took %s seconds (node v0.9.x) :-))))))))', count, Object.keys(data).length, (Date.now() - start)/1000);
+  console.log('resolving %s links from %s pages took %s seconds (node v0.10.x) :-))))))))', count, Object.keys(data).length, (Date.now() - start)/1000);
 }
 
 benchUrlResolveSimple();
