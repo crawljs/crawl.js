@@ -1,12 +1,12 @@
 
 var log     = require('./lib/logger')
   , Store   = require('./lib/store')
+  , Queue   = require('./lib/queue')
   , url     = require('./lib/url')
   , Fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
-  , block = process.argv[2]
-  , queue;
+  , block = process.argv[2];
 
 if (!block) {
   console.log('usage: %s <url-block>', process.argv[1]);
@@ -18,29 +18,28 @@ if (!block) {
  * The url block we are responsible for.
  */
 conf.block = parseInt(block, 10);
+Fetcher.init();
 
 
 function printQueue() {
+  var queue = Queue.local();
   process.stdout.write('Queue length: ' + queue.size() + '\r');
 }
 
 
 function start () {
+
   var store = Store.get('main')
-    , dispatcher;
+    , remoteQueue = Queue.remote()
+    , localQueue = Queue.local();
 
-  dispatcher = new Dispatcher();
-  Fetcher.init(dispatcher);
-
-  queue = dispatcher.getQueue();
-  queue.on('url', crawl);
+  localQueue.on('url', crawl);
 
   //query the urls we need to crawl
-  store.zrangebyscore(conf.block + ':urls', '-inf', 'inf', queue.limit, function (err, urls) {
+  remoteQueue.peek(10, function (err, urls) {
     if (err) {
       return log.error('could not get urls. error: ' + err);
     }
-
     if (!urls.length) {
       log.info('no urls to fetch. waiting to restart');
       //keep running
@@ -48,12 +47,12 @@ function start () {
       return;
     } else {
       log.info('got ' + urls.length + ' new urls to fetch.');
-      urls.forEach(function (urlString) {
-        dispatcher.dispatch(url.parse(urlString), true);
+      urls.forEach(function (url) {
+        localQueue.enqueue(url);
       });
     }
-
   });
+
 }
 
 function crawl() {
@@ -62,12 +61,14 @@ function crawl() {
     //max number of concurrent connections reached.
     return;
   }
-  
-  var url = queue.dequeue();
+
+  var queue = Queue.local()
+    , url = queue.dequeue();
 
   if (!url) {
     if (!Fetcher.isActive()) {
       setTimeout(start, 5000);
+      Dispatcher.stopping = false;
       return log.info('job done! waiting to restart.');
     } else {
       //other crawlers still running. they will trigger more events

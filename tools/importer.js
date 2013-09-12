@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 /*
- * Import an initial list of urls into riak.
+ * Import an initial list of urls into the remote queues.
  * Every url is mapped to his bucket using our internal algorithm.
  */
 
 var url = require('../lib/url')
-  , options = require('../lib/config')().storage.options
   , log = require('../lib/logger')
-  , store = require('../lib/store').get('importer')
+  , queue = require('../lib/queue').remote()
   , fs = require('fs')
   , listPath = process.argv[2];
 
@@ -22,13 +21,10 @@ var content = fs.readFileSync(listPath, 'utf-8');
 content.split('\n').forEach(function (line) {
   //make sure it is one.
   try {
-    var validUrl   = url.parse(line).href;
-    var key = url.map(validUrl) + ':urls';
+    var validUrl   = url.parse(line).href
+      , block = url.map(validUrl);
 
-    store.zadd(key, 0, validUrl, function (err) {
-      if (err) { throw err; }
-    });
-
+    queue.enqueue(validUrl, block);
     console.log(url.map(validUrl) + ' <-> ' + validUrl);
   } catch (e) {
     log.warn(line + ' is not an url. error: ' + e);
@@ -36,3 +32,4 @@ content.split('\n').forEach(function (line) {
 
 });
 
+queue.flush();

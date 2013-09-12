@@ -1,27 +1,39 @@
 {
-     "queueLimit": 50
-   , "roboLimit": 100
-   , "fetcher": {
-      "poolSize": 3
-    , "wait": 1000
-    , "request": {
-          "timeout": 30000
-        , "followRedirect": true
-        , "maxRedirects": 20
-        , "headers":{
-            "User-Agent": "crawl.js v0.1"
-          }
+   "queueLimit": 50,
+   "roboLimit": 100,
+   "fetcher": {
+    "poolSize": 5,
+    "wait": 1000,
+    "request": {
+        "timeout": 30000,
+        "followRedirect": true,
+        "maxRedirects": 20,
+        "headers": {
+          "User-Agent": "crawl.js v0.1"
+        }
     }
-  }
-  , "extractor": "parser"
-  , "storage": {
-        "type": "redis"
-      , "options": {
-            "host": "127.0.0.1"
-          , "port": "6379"
+  },
+  "extractor": "parser",
+  "queue": {
+    "local": {
+      "type": "memory",
+      "options": {
+        "limit": 1000
+      }
+    },
+    "remote": {
+      "type": "redis",
+      "options": {
+        "batchSize": 20,
+        "host": "127.0.0.1",
+        "port": "6379"
       }
     }
-  , "url": {
-    "blocks": 4
+  },
+  "store": {
+    "type": "dummy"
+  },
+  "url": {
+    "blocks": 1
   }
 }
