@@ -18,7 +18,7 @@
     "local": {
       "type": "memory",
       "options": {
-        "limit": 100
+        "limit": 1000
       }
     },
     "remote": {

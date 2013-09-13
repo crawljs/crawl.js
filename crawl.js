@@ -8,6 +8,7 @@ var log     = require('./lib/logger')
   , fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
+	, exit = false
   , block = process.argv[2];
 
 if (!block) {
@@ -26,6 +27,7 @@ conf.block = parseInt(block, 10);
  */
 fetcher.init();
 
+queues.local().on('url', crawl);
 
 process.on('SIGINT', function() {
 	/*
@@ -33,13 +35,20 @@ process.on('SIGINT', function() {
 	 */
 
 	log.info('flushing queues...');
+	//Mark that we want to exit
+	exit = true;
+	Dispatcher.block(true);
 
-	var queue = queues.remote();
-	queue.flush();
+	var local = queues.local()
+		, remote = queues.remote();
 
-	setTimeout(function () {
-		process.exit(0);
-	}, 1000);
+	while(local.size() > 0) {
+		var url = local.dequeue();
+		remote.enqueue(url);
+	}
+
+	remote.flush();
+
 });
 
 
@@ -54,10 +63,18 @@ function start () {
   var remoteQueue = queues.remote()
     , localQueue = queues.local();
 
-  localQueue.on('url', crawl);
+	if (exit) {
+		log.info('quitting. (waiting for all connections to close)');
+		localQueue.quit();
+		remoteQueue.quit();
+		//fetcher.quit();
+		return;
+	} else {
+		Dispatcher.block(false);
+	}
 
   //query the urls we need to crawl
-  remoteQueue.peek(10, function (err, urls) {
+  remoteQueue.peek(1000, function (err, urls) {
     if (err) {
       return log.error('could not get urls. error: ' + err);
     }
@@ -89,7 +106,6 @@ function crawl() {
   if (!url) {
     if (!fetcher.isActive()) {
       setTimeout(start, 5000);
-			Dispatcher.block(false);
       return log.info('job done! waiting to restart.');
     } else {
       //other crawlers still running. they will trigger more events
