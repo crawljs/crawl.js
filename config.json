@@ -14,11 +14,11 @@
     }
   },
   "extractor": "parser",
-  "queue": {
+  "queues": {
     "local": {
       "type": "memory",
       "options": {
-        "limit": 1000
+        "limit": 100
       }
     },
     "remote": {
