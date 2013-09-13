@@ -65,9 +65,10 @@ function start () {
 
 	if (exit) {
 		log.info('quitting. (waiting for all connections to close)');
+		//TODO someting is wrong with robo.js
+		//requests to robots.txt are kept open..
 		localQueue.quit();
 		remoteQueue.quit();
-		//fetcher.quit();
 		return;
 	} else {
 		Dispatcher.block(false);
