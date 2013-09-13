@@ -7,7 +7,7 @@
 
 var url = require('../lib/url')
   , log = require('../lib/logger')
-  , queue = require('../lib/queue').remote()
+  , queue = require('../lib/queues').remote()
   , fs = require('fs')
   , listPath = process.argv[2];
 

@@ -3,10 +3,9 @@
  */
 
 var log     = require('./lib/logger')
-  , Store   = require('./lib/store')
-  , Queue   = require('./lib/queue')
+  , queues  = require('./lib/queues')
   , url     = require('./lib/url')
-  , Fetcher = require('./lib/fetcher')
+  , fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
   , block = process.argv[2];
@@ -21,20 +20,39 @@ if (!block) {
  * The url block we are responsible for.
  */
 conf.block = parseInt(block, 10);
-Fetcher.init();
+
+/*
+ * Init fetcher
+ */
+fetcher.init();
+
+
+process.on('SIGINT', function() {
+	/*
+	 * Flush queues before we exit
+	 */
+
+	log.info('flushing queues...');
+
+	var queue = queues.remote();
+	queue.flush();
+
+	setTimeout(function () {
+		process.exit(0);
+	}, 1000);
+});
 
 
 function printQueue() {
-  var queue = Queue.local();
+  var queue = queues.local();
   process.stdout.write('Queue length: ' + queue.size() + '\r');
 }
 
 
 function start () {
 
-  var store = Store.get('main')
-    , remoteQueue = Queue.remote()
-    , localQueue = Queue.local();
+  var remoteQueue = queues.remote()
+    , localQueue = queues.local();
 
   localQueue.on('url', crawl);
 
@@ -60,18 +78,18 @@ function start () {
 
 function crawl() {
 
-  if (Fetcher.isBusy()) {
+  if (fetcher.isBusy()) {
     //max number of concurrent connections reached.
     return;
   }
 
-  var queue = Queue.local()
+  var queue = queues.local()
     , url = queue.dequeue();
 
   if (!url) {
-    if (!Fetcher.isActive()) {
+    if (!fetcher.isActive()) {
       setTimeout(start, 5000);
-      Dispatcher.stopping = false;
+			Dispatcher.block(false);
       return log.info('job done! waiting to restart.');
     } else {
       //other crawlers still running. they will trigger more events
@@ -79,7 +97,7 @@ function crawl() {
     }
   }
 
-  Fetcher.get(url, function (err) {
+  fetcher.get(url, function (err) {
     if (err) {
       log.error('fetch went wrong: %s', err);
     }
