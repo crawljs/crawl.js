@@ -16,12 +16,6 @@ var log     = require('./lib/logger')
 
 function init(block) {
 
-  if (!block) {
-    console.log('usage: %s <url-block>', process.argv[1]);
-    console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
-    process.exit(1);
-  }
-
   conf.block = parseInt(block, 10); //virtual url-block passed as argument on startup
   queues.local().on('url', crawl); //establish event flow
   fetcher.init();
@@ -132,5 +126,11 @@ function crawl() {
 }
 
 /* Startup */
-init(process.argv[2]);
-process.on('SIGINT', exit);
+if (!process.argv[2]) {
+  console.log('usage: %s <url-block>', process.argv[1]);
+  console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
+} else {
+  //we are good
+  init(process.argv[2]);
+  process.on('SIGINT', exit);
+}
