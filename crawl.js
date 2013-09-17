@@ -8,39 +8,45 @@ var log     = require('./lib/logger')
   , fetcher = require('./lib/fetcher')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
-	, exit = false
-  , block = process.argv[2];
+	, quitting = false;
 
-if (!block) {
-  console.log('usage: %s <url-block>', process.argv[1]);
-  console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
-  process.exit(1);
+/*
+ * Init crawl.js
+ */
+
+function init(block) {
+
+  if (!block) {
+    console.log('usage: %s <url-block>', process.argv[1]);
+    console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
+    process.exit(1);
+  }
+
+  conf.block = parseInt(block, 10); //virtual url-block passed as argument on startup
+  queues.local().on('url', crawl); //establish event flow
+  fetcher.init();
+
+  peek(); //get urls from remote queue
+
 }
 
 /*
- * The url block we are responsible for.
+ * exit gracefully.
+ * - unlink events
+ * - flush queues
+ * - block dispatcher
  */
-conf.block = parseInt(block, 10);
 
-/*
- * Init fetcher
- */
-fetcher.init();
-
-queues.local().on('url', crawl);
-
-process.on('SIGINT', function() {
-	/*
-	 * Flush queues before we exit
-	 */
+function exit() {
 
 	log.info('flushing queues...');
-	//Mark that we want to exit
-	exit = true;
+	quitting = true; //Mark that we want to exit
 	Dispatcher.block(true);
 
 	var local = queues.local()
 		, remote = queues.remote();
+
+  local.removeAllListeners('url');
 
 	while(local.size() > 0) {
 		var url = local.dequeue();
@@ -49,7 +55,14 @@ process.on('SIGINT', function() {
 
 	remote.flush();
 
-});
+}
+
+function quit() {
+  log.info('quitting. (waiting for all connections to close)');
+	//TODO someting is wrong with robo.js
+	//requests to robots.txt are kept open..
+  queues.remote().quit();
+}
 
 
 function printQueue() {
@@ -58,21 +71,12 @@ function printQueue() {
 }
 
 
-function start () {
+function peek() {
 
   var remoteQueue = queues.remote()
     , localQueue = queues.local();
 
-	if (exit) {
-		log.info('quitting. (waiting for all connections to close)');
-		//TODO someting is wrong with robo.js
-		//requests to robots.txt are kept open..
-		localQueue.quit();
-		remoteQueue.quit();
-		return;
-	} else {
-		Dispatcher.block(false);
-	}
+	Dispatcher.block(false); //make sure to deblock
 
   //query the urls we need to crawl
   remoteQueue.peek(1000, function (err, urls) {
@@ -82,7 +86,7 @@ function start () {
     if (!urls.length) {
       log.info('no urls to fetch. waiting to restart');
       //keep running
-      setTimeout(start, 10000);
+      setTimeout(peek, 10000);
       return;
     } else {
       log.info('got ' + urls.length + ' new urls to fetch.');
@@ -106,12 +110,15 @@ function crawl() {
 
   if (!url) {
     if (!fetcher.isActive()) {
-      setTimeout(start, 5000);
-      return log.info('job done! waiting to restart.');
-    } else {
-      //other crawlers still running. they will trigger more events
-      return;
+      if (quitting) {
+        quit();
+      } else {
+        log.info('job done! waiting to restart.');
+        setTimeout(peek, 5000);
+      }
     }
+    //other crawlers still running. they will trigger more events
+    return;
   }
 
   fetcher.get(url, function (err) {
@@ -119,9 +126,11 @@ function crawl() {
       log.error('fetch went wrong: %s', err);
     }
     printQueue();
-    setImmediate(crawl);
+    process.nextTick(crawl);
   });
 
 }
 
-start();
+/* Startup */
+init(process.argv[2]);
+process.on('SIGINT', exit);
