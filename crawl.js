@@ -72,6 +72,10 @@ function peek() {
 
 	Dispatcher.block(false); //make sure to deblock
 
+  if (quitting) {
+    return quit();
+  }
+
   //query the urls we need to crawl
   remoteQueue.peek(1000, function (err, urls) {
     if (err) {
@@ -79,12 +83,7 @@ function peek() {
     }
     if (!urls.length) {
       log.info('no urls to fetch. waiting to restart');
-      if(quitting) {
-        quit();
-      } else {
-        //keep running
-        setTimeout(peek, 10000);
-      }
+      setTimeout(peek, 10000);
     } else {
       log.info('got ' + urls.length + ' new urls to fetch.');
       urls.forEach(function (url) {
