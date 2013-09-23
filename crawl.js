@@ -79,9 +79,12 @@ function peek() {
     }
     if (!urls.length) {
       log.info('no urls to fetch. waiting to restart');
-      //keep running
-      setTimeout(peek, 10000);
-      return;
+      if(quitting) {
+        quit();
+      } else {
+        //keep running
+        setTimeout(peek, 10000);
+      }
     } else {
       log.info('got ' + urls.length + ' new urls to fetch.');
       urls.forEach(function (url) {
