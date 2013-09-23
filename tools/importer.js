@@ -33,3 +33,7 @@ content.split('\n').forEach(function (line) {
 });
 
 queue.flush();
+
+setTimeout(function () {
+  queue.quit();
+}, 1000); //give some time
