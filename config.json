@@ -1,15 +1,14 @@
 {
-   "queueLimit": 50,
    "roboLimit": 100,
    "fetcher": {
     "poolSize": 5,
-    "wait": 1000,
     "request": {
+        "jar": true,
         "timeout": 30000,
         "followRedirect": true,
-        "maxRedirects": 20,
+        "maxRedirects": 3,
         "headers": {
-          "User-Agent": "crawl.js v0.1"
+          "User-Agent": "crawl.js v0.0.1"
         }
     }
   },
@@ -34,6 +33,6 @@
     "type": "dummy"
   },
   "url": {
-    "blocks": 1
+    "blocks": 16
   }
 }
