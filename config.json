@@ -1,7 +1,6 @@
 {
-   "roboLimit": 100,
    "fetcher": {
-    "poolSize": 5,
+    "instances": 5,
     "request": {
         "jar": true,
         "timeout": 30000,
@@ -30,9 +29,13 @@
     }
   },
   "store": {
-    "type": "dummy"
+    "type": "dummy",
+    "options": {}
   },
   "url": {
     "blocks": 16
+  },
+  "robo": {
+    "limit": 100
   }
 }
