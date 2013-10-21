@@ -29,14 +29,14 @@
     }
   },
   "dispatcher": {
-    "acceptPattern": "(ar|af|be).wikipedia.org"
+    "acceptPattern": ""
   },
   "store": {
     "type": "dummy",
     "options": {}
   },
   "url": {
-    "blocks": 16
+    "blocks": 1 
   },
   "robo": {
     "limit": 100

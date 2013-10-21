@@ -25,7 +25,7 @@ content.split('\n').forEach(function (line) {
       , block = url.map(validUrl);
 
     queue.enqueue(validUrl, block);
-    console.log(url.map(validUrl) + ' <-> ' + validUrl);
+    console.log(block + ' <-> ' + validUrl);
   } catch (e) {
     log.warn(line + ' is not an url. error: ' + e);
   }
