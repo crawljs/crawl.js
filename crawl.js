@@ -70,7 +70,7 @@ function peek() {
   }
 
   //query the urls we need to crawl
-  remoteQueue.peek(1000, function (err, urls) {
+  remoteQueue.peek(localQueue.limit, function (err, urls) {
     if (err) {
       return log.error('could not get urls. error: ' + err);
     }
