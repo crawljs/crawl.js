@@ -58,13 +58,6 @@ function quit() {
   queues.remote().quit();
 }
 
-
-function printQueue() {
-  var queue = queues.local();
-  process.stdout.write('Queue length: ' + queue.size() + '\r');
-}
-
-
 function peek() {
 
   var remoteQueue = queues.remote()
@@ -121,7 +114,6 @@ function crawl() {
     if (err) {
       log.error('fetch went wrong: %s', err);
     }
-    printQueue();
     process.nextTick(crawl);
   });
 
