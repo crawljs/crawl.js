@@ -87,6 +87,13 @@ function peek() {
 
 }
 
+function status () {
+
+  var local = queues.local();
+  log.info('queue.size: ', local.size());
+
+}
+
 function crawl() {
 
   if (fetcher.isBusy()) {
@@ -127,4 +134,5 @@ if (!process.argv[2]) {
   //we are good
   init(process.argv[2]);
   process.on('SIGINT', exit);
+  process.on('SIGUSR2', status);
 }
