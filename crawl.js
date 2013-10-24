@@ -106,7 +106,7 @@ function crawl() {
         setTimeout(peek, 5000);
       }
     }
-    //other crawlers still running. they will trigger more events
+    log.warn('other crawlers still running. they will trigger more events');
     return;
   }
 
