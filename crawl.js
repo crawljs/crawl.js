@@ -75,10 +75,9 @@ function peek() {
       return log.error('could not get urls. error: ' + err);
     }
     if (!urls.length) {
-      log.info('no urls to fetch. waiting to restart');
       setTimeout(peek, 10000);
     } else {
-      log.info('got ' + urls.length + ' new urls to fetch.');
+      log.info('got ' + localQueue.limit < urls.length ? localQueue.limit : urls.length + ' new urls to fetch.');
       urls.forEach(function (url) {
         localQueue.enqueue(url);
       });
@@ -102,8 +101,8 @@ function crawl() {
       if (quitting) {
         quit();
       } else {
-        log.info('job done! waiting to restart.');
-        setTimeout(peek, 5000);
+        log.info('job done! restart.');
+        process.nextTick(peek);
       }
     }
     log.warn('other crawlers still running. they will trigger more events');
