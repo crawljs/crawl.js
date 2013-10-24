@@ -112,7 +112,7 @@ function crawl() {
 
   fetcher.get(url, function (err) {
     if (err) {
-      log.error('fetch went wrong: %s', err);
+      log.error('error fetching url: %s, error: %s', url, err);
     }
     process.nextTick(crawl);
   });
