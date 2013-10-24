@@ -77,7 +77,7 @@ function peek() {
     if (!urls.length) {
       setTimeout(peek, 10000);
     } else {
-      log.info('got ' + localQueue.limit < urls.length ? localQueue.limit : urls.length + ' new urls to fetch.');
+      log.info('got ' + (localQueue.limit < urls.length ? localQueue.limit : urls.length) + ' new urls to fetch.');
       urls.forEach(function (url) {
         localQueue.enqueue(url);
       });
@@ -105,7 +105,7 @@ function crawl() {
         process.nextTick(peek);
       }
     }
-    log.warn('other crawlers still running. they will trigger more events');
+    log.debug('other crawlers still running. they will trigger more events');
     return;
   }
 
