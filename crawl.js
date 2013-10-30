@@ -78,10 +78,10 @@ function peek() {
       remoteQueue.flush();
       setTimeout(peek, 10000);
     } else {
-      log.info('got ' + (localQueue.limit < urls.length ? localQueue.limit : urls.length) + ' new urls to fetch.');
       urls.forEach(function (url) {
         localQueue.enqueue(url);
       });
+      log.info('got ' + localQueue.size() + ' new urls to fetch.');
     }
   });
 
