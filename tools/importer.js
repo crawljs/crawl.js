@@ -19,8 +19,13 @@ if (!listPath) {
 var content = fs.readFileSync(listPath, 'utf-8');
 
 content.split('\n').forEach(function (line) {
-  //make sure it is one.
+
+  if (!line) {
+    return;
+  }
+
   try {
+    //make sure it is one.
     var validUrl   = url.parse(line).href
       , block = url.map(validUrl);
 
@@ -32,8 +37,9 @@ content.split('\n').forEach(function (line) {
 
 });
 
-queue.flush();
-
-setTimeout(function () {
+queue.flush(function (err) {
+  if (err) {
+    log.error('could not flush. error: ', err);
+  }
   queue.quit();
-}, 1000); //give some time
+});
