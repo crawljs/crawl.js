@@ -22,7 +22,7 @@
     "remote": {
       "type": "redis",
       "options": {
-        "batchSize": 20,
+        "flushInterval": 30000,
         "host": "127.0.0.1",
         "port": "6379"
       }
