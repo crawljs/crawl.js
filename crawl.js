@@ -75,7 +75,6 @@ function peek() {
       return log.error('could not get urls. error: ' + err);
     }
     if (!urls.length) {
-      remoteQueue.flush();
       setTimeout(peek, 10000);
     } else {
       urls.forEach(function (url) {
