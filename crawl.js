@@ -6,9 +6,11 @@ var log     = require('./lib/logger')
   , queues  = require('./lib/queues')
   , url     = require('./lib/url')
   , fetcher = require('./lib/fetcher')
+  , Seen    = require('./lib/seen')
   , Dispatcher = require('./lib/dispatcher')
   , conf    = require('./lib/config')()
-	, quitting = false;
+  , quitting = false
+  , seen;
 
 /*
  * Init crawl.js
@@ -19,8 +21,16 @@ function init(block) {
   conf.block = parseInt(block, 10); //virtual url-block passed as argument on startup
   queues.local().on('url', crawl); //establish event flow
   fetcher.init();
-
-  peek(); //get urls from remote queue
+  seen = Seen.get();
+  seen.init(function (err) {
+    if (err) {
+      log.error('could not initialize seen structure');
+      exit();
+    } else {
+      //all good, get urls we need to crawl
+      peek();
+    }
+  });
 
 }
 
