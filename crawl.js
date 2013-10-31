@@ -73,17 +73,23 @@ function peek() {
   }
 
   //query the urls we need to crawl
-  remoteQueue.peek(localQueue.limit, function (err, urls) {
+  remoteQueue.peek(function (err, urls) {
     if (err) {
       return log.error('could not get urls. error: ' + err);
     }
     if (!urls.length) {
       setTimeout(peek, 10000);
     } else {
+      var limit = localQueue.limit;
+      log.info('got ' + urls.length + ' new urls to fetch.');
+      if (urls.length > limit) {
+        log.info('only crawling %s because of queue limit.', localQueue.limit);
+        urls = urls.slice(0,limit);
+      }
       urls.forEach(function (url) {
+        seen.add(url);
         localQueue.enqueue(url);
       });
-      log.info('got ' + localQueue.size() + ' new urls to fetch.');
     }
   });
 
