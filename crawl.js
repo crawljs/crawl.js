@@ -47,25 +47,18 @@ function exit() {
 	quitting = true; //Mark that we want to exit
 	Dispatcher.block(true);
 
-	var local = queues.local()
-		, remote = queues.remote();
+  queues.local().flush();
+	queues.remote().flush(function (err) {
+    if (err) {
+      log.error('error flushing queues');
+    }
+    log.info('quitting. (waiting for all connections to close)');
+    //TODO someting is wrong with robo.js
+    //requests to robots.txt are kept open..
+    queues.remote().quit();
+    seen.quit();
+  });
 
-  local.removeAllListeners('url');
-
-	while(local.size() > 0) {
-		var url = local.dequeue();
-		remote.enqueue(url);
-	}
-
-	remote.flush();
-
-}
-
-function quit() {
-  log.info('quitting. (waiting for all connections to close)');
-	//TODO someting is wrong with robo.js
-	//requests to robots.txt are kept open..
-  queues.remote().quit();
 }
 
 function peek() {
@@ -76,7 +69,7 @@ function peek() {
 	Dispatcher.block(false); //make sure to deblock
 
   if (quitting) {
-    return quit();
+    return;
   }
 
   //query the urls we need to crawl
@@ -115,9 +108,7 @@ function crawl() {
 
   if (!url) {
     if (!fetcher.isActive()) {
-      if (quitting) {
-        quit();
-      } else {
+      if (!quitting) {
         log.info('job done! restart.');
         process.nextTick(peek);
       }
