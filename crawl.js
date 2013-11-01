@@ -116,7 +116,12 @@ function crawl() {
     if (!fetcher.isActive()) {
       if (!quitting) {
         log.info('job done! restart.');
-        process.nextTick(peek);
+        queues.remote().flush(function (err) {
+          if (err) {
+            log.error('could not flush remote queue. error: %s', err);
+          }
+          peek();
+        });
       }
     }
     log.debug('other crawlers still running. they will trigger more events');
