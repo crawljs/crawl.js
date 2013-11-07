@@ -98,6 +98,7 @@ function peek() {
 function status () {
 
   var local = queues.local();
+  log.info('open connection: ', fetcher.activeCount());
   log.info('queue.size: ', local.size());
 
 }
