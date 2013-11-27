@@ -1,6 +1,18 @@
 {
-   "fetcher": {
-    "instances": 5,
+  "group": "the group we are crawling for. defined by argv[1]",
+  "block": "the block we are crawling for. defined by argv[2]",
+  "mapper": {
+    "rules": [
+      {"hostname": "bn.wikipedia.org", "group": 0},
+      {"hostname": "bs.wikipedia.org", "group": 1}
+    ],
+    "groups": [
+      {"group": 0, "blocks": 3},
+      {"group": 1, "blocks": 2}
+    ]
+  },
+  "fetcher": {
+    "instances": 10,
     "request": {
         "jar": true,
         "timeout": 30000,
@@ -16,13 +28,13 @@
     "local": {
       "type": "memory",
       "options": {
-        "limit": 1000
+        "limit": 10000
       }
     },
     "remote": {
       "type": "redis",
       "options": {
-        "flushInterval": 30000,
+        "flushInterval": 10000,
         "host": "127.0.0.1",
         "port": "6379"
       }
@@ -38,9 +50,6 @@
   "store": {
     "type": "dummy",
     "options": {}
-  },
-  "url": {
-    "blocks": 1 
   },
   "robo": {
     "limit": 100

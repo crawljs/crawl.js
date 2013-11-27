@@ -7,6 +7,7 @@
 
 var url = require('../lib/url')
   , log = require('../lib/logger')
+  , Mapper = require('../lib/mapper')
   , queue = require('../lib/queues').remote()
   , fs = require('fs')
   , listPath = process.argv[2];
@@ -16,7 +17,8 @@ if (!listPath) {
   process.exit(1);
 }
 
-var content = fs.readFileSync(listPath, 'utf-8');
+var content = fs.readFileSync(listPath, 'utf-8')
+  , mapper = new Mapper();
 
 content.split('\n').forEach(function (line) {
 
@@ -24,16 +26,13 @@ content.split('\n').forEach(function (line) {
     return;
   }
 
-  try {
-    //make sure it is one.
-    var validUrl   = url.parse(line).href
-      , block = url.map(validUrl);
+  var urlObj = url.parse(line)
+    , entry = url.normalize(urlObj)
+    , group = mapper.group(urlObj)
+    , block = mapper.block(group, urlObj);
 
-    queue.enqueue(validUrl, block);
-    console.log(block + ' <-> ' + validUrl);
-  } catch (e) {
-    log.warn(line + ' is not an url. error: ' + e);
-  }
+  queue.enqueue(entry, group, block);
+  log.info('imported %s to group: %s, block: %s', entry, group, block);
 
 });
 

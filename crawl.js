@@ -16,9 +16,12 @@ var log     = require('./lib/logger')
  * Init crawl.js
  */
 
-function init(block) {
+function init(group, block) {
 
-  conf.block = parseInt(block, 10); //virtual url-block passed as argument on startup
+  //`group` and `block` within that group we are crawling for
+  conf.group = parseInt(group, 10);
+  conf.block = parseInt(block, 10);
+
   queues.local().on('url', crawl); //establish event flow
   fetcher.init();
   seen = Seen.get();
@@ -139,12 +142,13 @@ function crawl() {
 }
 
 /* Startup */
-if (!process.argv[2]) {
-  console.log('usage: %s <url-block>', process.argv[1]);
-  console.log('url-blocks: [0..%d]', conf.url.blocks - 1);
+if (!process.argv[2] || !process.argv[3]) {
+  console.log('usage: %s <group> <block>', process.argv[1]);
+  console.log('group: [0..%d]', conf.mapper.groups.length - 1);
+  console.log('block: the block within the group');
 } else {
   //we are good
-  init(process.argv[2]);
+  init(process.argv[2], process.argv[3]);
   process.on('SIGINT', exit);
   process.on('SIGUSR2', status);
 }
