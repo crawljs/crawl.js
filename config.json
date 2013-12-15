@@ -15,6 +15,7 @@
         "timeout": 30000,
         "followRedirect": true,
         "maxRedirects": 3,
+        "maxSockets": 10,
         "headers": {
           "User-Agent": "crawl.js v0.0.1"
         }
