@@ -4,7 +4,6 @@
   "mapper": {
     "rules": [],
     "groups": [
-      {"group": 0, "blocks": 1},
       {"group": 0, "blocks": 1}
     ]
   },
