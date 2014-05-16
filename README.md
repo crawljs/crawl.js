@@ -9,10 +9,11 @@ A crawl.js instance is autonomic and responsible for one URL-block. URL-blocks a
 Note: I suggest the use of `nvm` (Node Version Manager - https://github.com/creationix/nvm) for the Node.js installation. Because crawl.js requires version v0.10.x and most distributions do not have packages for this yet.
 
 ##Configuration
-Have a look at `/config.json`. Two parts are important and need to be adjusted. 
+Have a look at `/config.json`. The following parts are important and need to be adjusted. 
 
-* `storage`: Configure it, so that the instances can connect to redis.
-* `url.blocks`: The total number of url-blocks you want to distribute the urls to. One crawl.js instance per URL-block. This number **must be a power of 2**.
+* `queues.remote`: Configure it, so that the instances can connect to redis.
+* `seen`: Typically same as `queues.remote`
+* `mapper`: How to map URLs to groups and blocks. One crawl.js instance is responsible for exactly one block within one group. Default configuration is 1 group with 1 block.
 
 ##Preperations
 Before we start to crawl we need to import some URL's into the URL-blocks.
@@ -38,7 +39,5 @@ $ npm install
 
 ##Starting an instance
 ```Shell
-$ node crawl.js <url-block>
+$ node crawl.js <group> <block>
 ```
-
-url-block: A url-block identifier between 0 and `url.blocks` (configured in `config.json`). It specifies for which URL-block this instance is responsible for.
